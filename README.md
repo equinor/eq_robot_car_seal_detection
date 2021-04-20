@@ -8,4 +8,6 @@
 ```
 source venv/Scripts/activate # If using venv
 pip install -r requirements.txt
+cd src
+python main.py
 ```

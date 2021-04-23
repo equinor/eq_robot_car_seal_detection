@@ -8,17 +8,19 @@ from image import (
     draw_bounding_box,
     find_color_in_image,
     get_biggest_contour,
+    get_bytes_string_from_image,
     get_image_from_bytes_string,
     show_image,
 )
 
-lower_green_bound = np.array([65, 50, 50])
-upper_green_bound = np.array([87, 255, 255])
+LOWER_GREEN_BOUND = np.array([65, 50, 50])
+UPPER_GREEN_BOUND = np.array([87, 255, 255])
+IMAGE_NAME = "green1.jpg"
 
 
 def main():
     color_name, medium, should_upload = get_arguments()
-    show_one_detected_image()
+    show_one_detected_image(should_upload)
 
 
 def get_arguments():
@@ -47,25 +49,30 @@ def build_arg_parser():
     return ap.parse_args()
 
 
-def show_one_detected_image():
+def show_one_detected_image(should_upload):
     container_client = ContainerClient.from_connection_string(
         STORAGE_CONNECTION_STRING, container_name=STORAGE_CONTAINER_NAME
     )
-    blob = container_client.get_blob_client("images/green1.jpg")
+    blob = container_client.get_blob_client(f"images/{IMAGE_NAME}")
     blob_downloader = blob.download_blob()
     bytes = blob_downloader.readall()
     image = get_image_from_bytes_string(bytes)
 
     image_binary_where_green = find_color_in_image(
-        image, lower_green_bound, upper_green_bound
+        image, LOWER_GREEN_BOUND, UPPER_GREEN_BOUND
     )
     biggest_contour = get_biggest_contour(image_binary_where_green)
     bounding_box_xywh = cv2.boundingRect(biggest_contour)
     draw_bounding_box(image, bounding_box_xywh, "green ziptie", [0, 255, 0])
 
-    image_2 = cv2.cvtColor(image_binary_where_green, cv2.COLOR_GRAY2BGR)
-    image_to_show = np.concatenate((image, image_2), axis=1)
-    show_image(image_to_show)
+    if should_upload:
+        image_file_extension = f".{IMAGE_NAME.split('.')[-1]}"
+        bytes_string = get_bytes_string_from_image(image, image_file_extension)
+        container_client.upload_blob(f"processed_images/{IMAGE_NAME}", bytes_string)
+    else:
+        image_2 = cv2.cvtColor(image_binary_where_green, cv2.COLOR_GRAY2BGR)
+        image_to_show = np.concatenate((image, image_2), axis=1)
+        show_image(image_to_show)
 
 
 if __name__ == "__main__":

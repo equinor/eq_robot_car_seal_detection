@@ -8,6 +8,10 @@ def get_image_from_bytes_string(bytes):
     return image
 
 
+def get_bytes_string_from_image(image, file_extension):
+    return cv2.imencode(file_extension, image)[1].tostring()
+
+
 def find_color_in_image(image, lower_color_bound, upper_color_bound):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     image = cv2.inRange(image, lower_color_bound, upper_color_bound)

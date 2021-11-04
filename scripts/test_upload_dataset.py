@@ -18,11 +18,7 @@ mock_tag = Tag(name="mock_tag", description="Tag for test", type="For test")
 
 @pytest.mark.parametrize(
     "image_path, max_byte_size",
-    [
-        ("/home/oysand/git/eq_robot_car_seal_detection/test_dataset/4.JPG", 4000000),
-        ("/home/oysand/git/eq_robot_car_seal_detection/test_dataset/2102.JPG", 4000000),
-        ("/home/oysand/git/eq_robot_car_seal_detection/test_dataset/2335.JPG", 4000000),
-    ],
+    [],
 )
 def test_read_and_resize_image(mocker, image_path, max_byte_size):
     mocker.patch.object(

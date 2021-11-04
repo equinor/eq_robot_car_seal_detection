@@ -43,6 +43,9 @@ def test_read_and_resize_image(mocker, image_path, max_byte_size):
     ],
 )
 def test_read_annotation_file(mocker, annotation_path):
+    mocker.patch.object(
+        UploadDataset, "_connect_to_or_create_project", return_value=mock_project
+    )
     mocker.patch.object(UploadDataset, "_get_or_create_tag", return_value=mock_tag)
     upload_dataset = UploadDataset(files_to_upload=[], project_name="test")
     annotations: list = upload_dataset._read_annotation_file(

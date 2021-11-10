@@ -1,24 +1,23 @@
+import json
 import os
+
 import cv2
-
-from car_seal.custom_vision.reader import read_and_resize_image
-
-from azure.cognitiveservices.vision.customvision.training import (
-    CustomVisionTrainingClient,
-)
 from azure.cognitiveservices.vision.customvision.prediction import (
     CustomVisionPredictionClient,
 )
-from msrest.authentication import ApiKeyCredentials
+from azure.cognitiveservices.vision.customvision.training import (
+    CustomVisionTrainingClient,
+)
+from car_seal.bounding_box import BoundingBox
+from car_seal.custom_vision.reader import read_and_resize_image
 from dotenv import load_dotenv
-
+from msrest.authentication import ApiKeyCredentials
 
 PREDICTION_THRESHOLD = 0.5
 
 
 class PredictImages:
     def __init__(self):
-
         # Load credentials from environment
         load_dotenv()
         TRAINING_ENDPOINT = os.getenv("TRAINING_ENDPOINT")
@@ -100,8 +99,7 @@ class PredictImages:
         results = self.predictor.detect_image(
             self.project.id, self.publish_iteration_name, image_bytes
         )
-
-        self.show_prediction(image_path, results.predictions)
+        return results.predictions
 
 
 if __name__ == "__main__":
@@ -115,11 +113,35 @@ if __name__ == "__main__":
 
     dataset_path = os.path.join(os.path.dirname(__file__), "../../../dataset")
 
+    results = {}
+
     predict_images = PredictImages()
     cv2.namedWindow("image", cv2.WINDOW_NORMAL)
 
     for image_name in txt_file_paths:
         image_path = os.path.join(dataset_path, "images", f"{image_name}.JPG")
-        predict_images.predict_image(image_path=image_path)
-
+        if not os.path.exists(image_path):
+            raise FileExistsError(f"File {image_path} does not exist")
+        predictions = predict_images.predict_image(image_path=image_path)
+        predict_images.show_prediction(image_path, predictions)
+        results[image_name] = []
+        for prediction in predictions:
+            if prediction.probability < PREDICTION_THRESHOLD:
+                continue
+            results[image_name].append(
+                BoundingBox(
+                    label=prediction.tag_name,
+                    left=prediction.bounding_box.left,
+                    top=prediction.bounding_box.top,
+                    width=prediction.bounding_box.width,
+                    height=prediction.bounding_box.height,
+                )
+            )
     cv2.destroyAllWindows()
+    file_path = os.path.join(
+        os.path.dirname(__file__), "../comparison/results/custom_vision_results.json"
+    )
+    with open(file_path, "w") as f:
+        json.dump(results, f)
+
+    print(results)

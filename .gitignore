@@ -15,3 +15,6 @@ __pycache__
 # Dataset
 dataset/images
 dataset/annotations
+
+# Results
+src/car_seal/comparison/results

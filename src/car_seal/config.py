@@ -1,0 +1,12 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+STORAGE_CONNECTION_STRING = os.getenv("STORAGE_CONNECTION_STRING")
+STORAGE_CONTAINER_NAME = "dataset-flat"
+TRAINING_ENDPOINT = os.getenv("TRAINING_ENDPOINT")
+TRAINING_KEY = os.getenv("TRAINING_KEY")
+PREDICTION_ENDPOINT = os.getenv("PREDICTION_ENDPOINT")
+PREDICTION_KEY = os.getenv("PREDICTION_KEY")

@@ -9,8 +9,13 @@ from azure.cognitiveservices.vision.customvision.training import (
     CustomVisionTrainingClient,
 )
 from car_seal.bounding_box import BoundingBox
+from car_seal.config import (
+    PREDICTION_ENDPOINT,
+    PREDICTION_KEY,
+    TRAINING_ENDPOINT,
+    TRAINING_KEY,
+)
 from car_seal.custom_vision.reader import read_and_resize_image
-from dotenv import load_dotenv
 from msrest.authentication import ApiKeyCredentials
 
 PREDICTION_THRESHOLD = 0.5
@@ -19,11 +24,6 @@ PREDICTION_THRESHOLD = 0.5
 class PredictImages:
     def __init__(self):
         # Load credentials from environment
-        load_dotenv()
-        TRAINING_ENDPOINT = os.getenv("TRAINING_ENDPOINT")
-        TRAINING_KEY = os.getenv("TRAINING_KEY")
-        PREDICTION_ENDPOINT = os.getenv("PREDICTION_ENDPOINT")
-        PREDICTION_KEY = os.getenv("PREDICTION_KEY")
 
         # Authenticate the training client
         credentials = ApiKeyCredentials(in_headers={"Training-key": TRAINING_KEY})

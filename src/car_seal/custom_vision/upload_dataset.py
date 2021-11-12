@@ -11,10 +11,9 @@ from azure.cognitiveservices.vision.customvision.training.models import (
     Region,
     Tag,
 )
+from car_seal.config import TRAINING_ENDPOINT, TRAINING_KEY
 from car_seal.custom_vision.reader import read_and_resize_image
-from dotenv import load_dotenv
 from msrest.authentication import ApiKeyCredentials
-from numpy import cbrt
 
 parser = argparse.ArgumentParser(description="Upload dataset to custom vision project.")
 parser.add_argument(
@@ -29,14 +28,9 @@ parser.add_argument(
 class UploadDataset:
     def __init__(self, files_to_upload: list, project_name: str) -> None:
         self.files_to_upload = files_to_upload
-        load_dotenv()
 
-        # Replace with valid values
-        ENDPOINT = os.getenv("TRAINING_ENDPOINT")
-        training_key = os.getenv("TRAINING_KEY")
-
-        credentials = ApiKeyCredentials(in_headers={"Training-key": training_key})
-        self.trainer = CustomVisionTrainingClient(ENDPOINT, credentials)
+        credentials = ApiKeyCredentials(in_headers={"Training-key": TRAINING_KEY})
+        self.trainer = CustomVisionTrainingClient(TRAINING_ENDPOINT, credentials)
 
         self.project_name = project_name
 

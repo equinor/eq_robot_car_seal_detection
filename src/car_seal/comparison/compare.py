@@ -5,6 +5,12 @@ import cv2
 
 IOU_THRESHOLD = 0.5
 
+# OpenCV waitKey values
+ESC_KEY_VALUE = 27
+Q_KEY_VALUE = 113
+LEFT_ARROW_KEY_VALUE = 81
+A_KEY_VALUE = 97
+
 
 def read_json_results(file_path):
     with open(file_path, "r") as f:
@@ -12,8 +18,22 @@ def read_json_results(file_path):
 
 
 def compare_results(ground_truth, result1, result2):
+    image_array = []
     for image in result1:
-        show_results(image, ground_truth[image], result1[image], result2[image])
+        image_array.append(image)
+
+    i = 0
+    while i < len(image_array):
+        print(f"Showing image {i+1} of {len(image_array)}")
+        image = image_array[i]
+        next_image = show_results(
+            image, ground_truth[image], result1[image], result2[image]
+        )
+        if next_image:
+            i += 1
+        else:
+            if i > 0:
+                i -= 1
 
 
 def draw_bounding_boxes(img, annotations, img_width, img_height, color, line_size):
@@ -60,8 +80,14 @@ def show_results(img_name, ground_truth, annotations1, annotations2):
     cv2.imshow("image", img)
 
     key = cv2.waitKey(0)
-    if key == 113:
+
+    if key == Q_KEY_VALUE or key == ESC_KEY_VALUE:
         raise Exception
+
+    if key == LEFT_ARROW_KEY_VALUE or key == A_KEY_VALUE:
+        return False
+
+    return True
 
 
 def calculate_iou(box1, box2):
